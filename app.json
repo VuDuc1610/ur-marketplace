@@ -29,7 +29,8 @@
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "orientation": "portrait"
     },
     "android": {
       "adaptiveIcon": {

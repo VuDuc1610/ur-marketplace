@@ -9,7 +9,6 @@ import {
   SafeAreaView,
   StatusBar,
 } from 'react-native';
-import { router } from 'expo-router';
 import { PRODUCTS, CATEGORIES } from '../data';
 import { COLORS } from './_layout';
 
@@ -79,58 +78,27 @@ export default function HomeScreen() {
     return matchesSearch && matchesCategory;
   });
 
-  const handleSellPress = () => {
-    router.push('/sell');
-  };
-
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
       <StatusBar barStyle="dark-content" backgroundColor="#fafafa" />
-
+      
       {/* Header */}
       <View className="bg-gray-50 px-5 py-3 shadow-sm">
-        <View className="flex-row justify-between items-center mb-3">
-          <Text
-            style={{
-              fontSize: 28,
-              fontWeight: '900',
-              color: COLORS.secondary, // Dandelion Yellow
-              textShadowColor: COLORS.primary, // Rochester Navy shadow
-              textShadowOffset: { width: 2, height: 2 },
-              textShadowRadius: 4,
-              letterSpacing: -0.5,
-            }}
-          >
-            UR Marketplace
-          </Text>
-
-          {/* Sell Button */}
-          <TouchableOpacity
-            onPress={handleSellPress}
-            style={{
-              backgroundColor: COLORS.primary,
-              paddingHorizontal: 16,
-              paddingVertical: 10,
-              borderRadius: 12,
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.1,
-              shadowRadius: 4,
-              elevation: 3,
-            }}
-          >
-            <Text
-              style={{
-                color: COLORS.white,
-                fontSize: 14,
-                fontWeight: '700',
-              }}
-            >
-              + Sell
-            </Text>
-          </TouchableOpacity>
-        </View>
-
+        <Text 
+          style={{
+            fontSize: 28,
+            fontWeight: '900',
+            color: COLORS.secondary, // Dandelion Yellow
+            textShadowColor: COLORS.primary, // Rochester Navy shadow
+            textShadowOffset: { width: 2, height: 2 },
+            textShadowRadius: 4,
+            marginBottom: 10,
+            letterSpacing: -0.5,
+          }}
+        >
+          UR Marketplace
+        </Text>
+        
         {/* Search Bar */}
         <View className="flex-row items-center bg-gray-100 rounded-xl px-3.5 py-2.5 border border-gray-200">
           <Text className="text-gray-600 mr-2.5 text-sm">🔍</Text>
