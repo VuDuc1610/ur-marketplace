@@ -1,5 +1,10 @@
 import { Tabs } from 'expo-router';
-import { Image } from 'react-native';
+import { Image, View, Text } from 'react-native';
+
+const COLORS = {
+  primary: '#1e3a8a', // navy blue
+  secondary: '#ffffff', // white
+};
 
 export default function TabLayout() {
   return (
@@ -60,16 +65,22 @@ export default function TabLayout() {
         name="sell"
         options={{
           title: 'Sell',
-          tabBarIcon: ({ color, focused }) => (
-            <Image
-              source={{ uri: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTIiIGZpbGw9IiMwMDAwMDAiLz4KPHBhdGggZD0iTTEyIDhWMTZNNCAxMkgxNiIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPC9zdmc+Cg==' }}
+          tabBarIcon: () => (
+            <View
               style={{
-                width: 24,
-                height: 24,
-                tintColor: color,
-                opacity: focused ? 1 : 0.6,
+                width: 40,
+                height: 40,
+                borderRadius: 999,
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: COLORS.primary, // navy
+                marginTop: -4, // lift the middle button a bit
               }}
-            />
+            >
+              <Text style={{ color: COLORS.secondary, fontSize: 20, fontWeight: "800" }}>
+                +
+              </Text>
+            </View>
           ),
         }}
       />
