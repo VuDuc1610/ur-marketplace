@@ -86,11 +86,11 @@ export default function HomeScreen() {
       <View className="bg-gray-50 px-5 py-3 shadow-sm">
         <Text 
           style={{
-            fontSize: 28,
+            fontSize: 32,
             fontWeight: '900',
             color: COLORS.secondary, // Dandelion Yellow
             textShadowColor: COLORS.primary, // Rochester Navy shadow
-            textShadowOffset: { width: 2, height: 2 },
+            textShadowOffset: { width: 4, height: 2 },
             textShadowRadius: 4,
             marginBottom: 10,
             letterSpacing: -0.5,
