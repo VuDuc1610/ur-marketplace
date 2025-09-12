@@ -10,6 +10,7 @@ import {
   StatusBar,
 } from 'react-native';
 import { PRODUCTS, CATEGORIES } from '../data';
+import { COLORS } from './_layout';
 
 interface Product {
   id: number;
@@ -45,18 +46,22 @@ const ProductCard = ({ product }: { product: Product }) => (
 const CategoryButton = ({ category, isSelected, onPress }: { category: Category; isSelected: boolean; onPress: () => void }) => (
   <TouchableOpacity
     onPress={onPress}
-    className={`px-4 py-2 rounded-2xl mr-2.5 ${
-      isSelected 
-        ? 'bg-black' 
-        : 'bg-gray-100 border border-gray-300'
-    }`}
+    style={{
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: 16,
+      marginRight: 10,
+      backgroundColor: isSelected ? COLORS.primary : COLORS.surfaceLight,
+      borderWidth: isSelected ? 0 : 1,
+      borderColor: COLORS.primary,
+    }}
   >
     <Text
-      className={`text-sm ${
-        isSelected 
-          ? 'font-bold text-white' 
-          : 'font-semibold text-gray-800'
-      }`}
+      style={{
+        fontSize: 14,
+        fontWeight: isSelected ? 'bold' : '600',
+        color: isSelected ? COLORS.white : COLORS.primary,
+      }}
     >
       {category.name}
     </Text>
@@ -79,7 +84,18 @@ export default function HomeScreen() {
       
       {/* Header */}
       <View className="bg-gray-50 px-5 py-3 shadow-sm">
-        <Text className="text-2xl font-extrabold text-black mb-2.5 tracking-tight">
+        <Text 
+          style={{
+            fontSize: 28,
+            fontWeight: '900',
+            color: COLORS.secondary, // Dandelion Yellow
+            textShadowColor: COLORS.primary, // Rochester Navy shadow
+            textShadowOffset: { width: 2, height: 2 },
+            textShadowRadius: 4,
+            marginBottom: 10,
+            letterSpacing: -0.5,
+          }}
+        >
           UR Marketplace
         </Text>
         
