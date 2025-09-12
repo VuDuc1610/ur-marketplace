@@ -3,6 +3,7 @@ import {
     View,
     Text,
     ScrollView,
+    SafeAreaView,
     TouchableOpacity,
     TextInput,
     StatusBar,
