@@ -1,15 +1,6 @@
 import React, { useState } from 'react';
-import {
-    View,
-    Text,
-    ScrollView,
-    SafeAreaView,
-    TouchableOpacity,
-    TextInput,
-    StatusBar,
-    Alert,
-    Switch,
-} from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, TextInput, StatusBar, Alert, Switch, } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { COLORS } from './_layout';
 
@@ -265,20 +256,14 @@ export default function SellScreen() {
                     </TouchableOpacity>
 
                     <TouchableOpacity
-                        onPress={() => Alert.alert('Feature Coming Soon', 'Message functionality will be available soon!')}
+                        onPress={() => Alert.alert('Feature Coming Soon', 'Cai nay la cai deo gi vay?')}
                         className="border-2 rounded-xl py-4"
                         style={{ borderColor: COLORS.primary }}
                     >
                         <View className="flex-row items-center justify-center">
                             <Text className="text-2xl mr-2">💬</Text>
-                            <Text
-                                style={{
-                                    color: COLORS.primary,
-                                    fontSize: 16,
-                                    fontWeight: '700',
-                                }}
-                            >
-                                Message Seller
+                            <Text>
+                              tu tu roi tinh
                             </Text>
                         </View>
                     </TouchableOpacity>
