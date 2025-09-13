@@ -1,13 +1,15 @@
 import React from 'react';
-import { View, Text, SafeAreaView, StatusBar } from 'react-native';
+import { View, Text, StatusBar } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { COLORS } from './_layout';
 
 export default function AccountScreen() {
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
       <StatusBar barStyle="dark-content" backgroundColor="#fafafa" />
-      <View className="flex-1 justify-center items-center">
-        <Text className="text-2xl font-bold text-black mb-2">My Account</Text>
-        <Text className="text-base text-gray-600 text-center">Account settings coming soon</Text>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text style={{ fontSize: 24, fontWeight: 'bold', color: COLORS.primary, marginBottom: 8 }}>My Account</Text>
+        <Text style={{ fontSize: 16, color: COLORS.grey, textAlign: 'center' }}>Account settings coming soon</Text>
       </View>
     </SafeAreaView>
   );

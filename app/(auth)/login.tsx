@@ -1,6 +1,6 @@
-import { useSignIn, useSignUp, useSSO } from "@clerk/clerk-expo";
+import { useSignIn, useSignUp, useSSO, useAuth } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Alert,
   Text,
@@ -18,95 +18,94 @@ const REQUIRED_DOMAIN = "@u.rochester.edu";
 export default function AuthScreen() {
   const router = useRouter();
   const { startSSOFlow } = useSSO();
+  const { isSignedIn, signOut } = useAuth();
+
   const { isLoaded: signInLoaded, signIn, setActive: setActiveSignIn } = useSignIn();
   const { isLoaded: signUpLoaded, signUp, setActive: setActiveSignUp } = useSignUp();
 
-  // ✅ include verify_signup mode
   const [mode, setMode] = useState<"signin" | "signup" | "verify_signup">("signin");
-
-  // shared fields
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-
-  // ✅ verification code state
   const [signupCode, setSignupCode] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  // If a valid session already exists, skip auth screen
+  useEffect(() => {
+    if (isSignedIn) {
+      router.replace("/(tabs)");
+    }
+  }, [isSignedIn, router]);
 
   // Google SSO
   const handleGoogleSignIn = async () => {
+    if (loading) return;
+    setLoading(true);
     try {
+      if (isSignedIn) await signOut();
       const { createdSessionId, setActive } = await startSSOFlow({
         strategy: "oauth_google",
+        // redirectUrl: Linking.createURL("sso-callback"), // optional if you set a custom path
       });
       if (setActive && createdSessionId) {
         await setActive({ session: createdSessionId });
-        router.replace("/domain-gate");
+        router.replace("/domain-gate"); // or /(tabs) if that’s your post-login
       }
-    } catch (e) {
-      Alert.alert("Google sign-in failed", "Please try again.");
+    } catch (e: any) {
+      Alert.alert("Google sign-in failed", e?.errors?.[0]?.message ?? "Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
   // Sign up (email/username/password)
   const handleSignUp = async () => {
-    if (!signUpLoaded) return;
+    if (!signUpLoaded || loading) return;
     if (!email || !username || !password) {
       return Alert.alert("Missing info", "All fields are required.");
     }
     if (!email.toLowerCase().endsWith(REQUIRED_DOMAIN)) {
       return Alert.alert("Not allowed", `Use your ${REQUIRED_DOMAIN} email.`);
     }
+    setLoading(true);
     try {
+      if (isSignedIn) await signOut();
       await signUp.create({ emailAddress: email, username, password });
-      if (signUp) {
-        if (signUp) {
-          await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
-        } else {
-          Alert.alert("Error", "Sign-up is not available. Please try again later.");
-        }
-      } else {
-        Alert.alert("Error", "Sign-up is not available. Please try again later.");
-      }
-
-      // ✅ switch UI to verification code entry
+      await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
       setMode("verify_signup");
     } catch (err: any) {
-      Alert.alert("Sign up failed", err.errors?.[0]?.message || "Try again.");
+      Alert.alert("Sign up failed", err?.errors?.[0]?.message || "Try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
-  // ✅ Verify email code (complete sign up)
+  // Verify email code
   const handleVerifySignupCode = async () => {
-    if (!signUpLoaded) return;
+    if (!signUpLoaded || loading) return;
     if (!signupCode.trim()) {
       return Alert.alert("Missing code", "Enter the 6-digit code we sent to your email.");
     }
+    setLoading(true);
     try {
+      if (isSignedIn) await signOut();
       const res = await signUp.attemptEmailAddressVerification({ code: signupCode.trim() });
       if (res.status === "complete" && setActiveSignUp) {
-        setActiveSignUp({ session: res.createdSessionId });
+        await setActiveSignUp({ session: res.createdSessionId });
         router.replace("/(tabs)");
       } else {
         Alert.alert("Verification needed", "Please complete the verification step.");
       }
     } catch (err: any) {
-      Alert.alert("Invalid code", err.errors?.[0]?.message || "Please try again.");
-    }
-  };
-
-  // ✅ Resend verification code
-  const handleResendSignupCode = async () => {
-    try {
-      await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
-      Alert.alert("Code sent", "We emailed you a new verification code.");
-    } catch (err: any) {
-      Alert.alert("Could not resend", err.errors?.[0]?.message || "Please try again.");
+      Alert.alert("Invalid code", err?.errors?.[0]?.message || "Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
   // Sign in
   const handleSignIn = async () => {
-    if (!signInLoaded) return;
+    if (!signInLoaded || loading) return;
     const identifier = email || username;
     if (!identifier || !password) {
       return Alert.alert("Missing info", "Email/username and password required.");
@@ -114,14 +113,18 @@ export default function AuthScreen() {
     if (identifier.includes("@") && !identifier.toLowerCase().endsWith(REQUIRED_DOMAIN)) {
       return Alert.alert("Not allowed", `Use your ${REQUIRED_DOMAIN} email.`);
     }
+    setLoading(true);
     try {
+      if (isSignedIn) await signOut();
       const result = await signIn.create({ identifier, password });
       if (result.status === "complete" && setActiveSignIn) {
-        setActiveSignIn({ session: result.createdSessionId });
+        await setActiveSignIn({ session: result.createdSessionId });
         router.replace("/(tabs)");
       }
     } catch (err: any) {
-      Alert.alert("Sign in failed", err.errors?.[0]?.message || "Try again.");
+      Alert.alert("Sign in failed", err?.errors?.[0]?.message || "Try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -138,8 +141,6 @@ export default function AuthScreen() {
 
       {/* FORM */}
       <View style={styles.loginSection}>
-
-        {/* ---------- VERIFY SIGNUP MODE ---------- */}
         {mode === "verify_signup" ? (
           <View style={styles.formCard}>
             <Text style={styles.subtitle}>Verify your email</Text>
@@ -157,27 +158,28 @@ export default function AuthScreen() {
               autoCapitalize="none"
             />
 
-            <TouchableOpacity style={styles.signInButton} onPress={handleVerifySignupCode}>
-              <Text style={styles.signInText}>Verify & Continue</Text>
+            <TouchableOpacity style={styles.signInButton} onPress={handleVerifySignupCode} disabled={loading}>
+              <Text style={styles.signInText}>{loading ? "Verifying..." : "Verify & Continue"}</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.resendLink} onPress={handleResendSignupCode}>
+            <TouchableOpacity style={styles.resendLink} onPress={handleResendSignupCode} disabled={loading}>
               <Text style={styles.linkText}>Resend code</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={{ marginTop: 8 }} onPress={() => setMode("signup")}>
+            <TouchableOpacity style={{ marginTop: 8 }} onPress={() => setMode("signup")} disabled={loading}>
               <Text style={styles.linkText}>Back</Text>
             </TouchableOpacity>
           </View>
         ) : (
           <>
-            {/* ---------- SIGN-IN / SIGN-UP MODES ---------- */}
             <TextInput
               placeholder="Email"
               value={email}
               onChangeText={setEmail}
               style={styles.input}
               autoCapitalize="none"
+              autoComplete="email"
+              keyboardType="email-address"
             />
 
             {mode === "signup" && (
@@ -187,6 +189,7 @@ export default function AuthScreen() {
                 onChangeText={setUsername}
                 style={styles.input}
                 autoCapitalize="none"
+                autoComplete="username-new"
               />
             )}
 
@@ -196,21 +199,23 @@ export default function AuthScreen() {
               onChangeText={setPassword}
               style={styles.input}
               secureTextEntry
+              autoComplete={mode === "signin" ? "password" : "new-password"}
             />
 
             {mode === "signin" ? (
-              <TouchableOpacity style={styles.signInButton} onPress={handleSignIn}>
-                <Text style={styles.signInText}>Sign In</Text>
+              <TouchableOpacity style={styles.signInButton} onPress={handleSignIn} disabled={loading}>
+                <Text style={styles.signInText}>{loading ? "Signing in..." : "Sign In"}</Text>
               </TouchableOpacity>
             ) : (
-              <TouchableOpacity style={styles.signInButton} onPress={handleSignUp}>
-                <Text style={styles.signInText}>Create Account</Text>
+              <TouchableOpacity style={styles.signInButton} onPress={handleSignUp} disabled={loading}>
+                <Text style={styles.signInText}>{loading ? "Creating..." : "Create Account"}</Text>
               </TouchableOpacity>
             )}
 
             <TouchableOpacity
               onPress={() => setMode(mode === "signin" ? "signup" : "signin")}
               style={{ marginTop: 8 }}
+              disabled={loading}
             >
               <Text style={styles.linkText}>
                 {mode === "signin"
@@ -225,9 +230,12 @@ export default function AuthScreen() {
               style={styles.googleButton}
               onPress={handleGoogleSignIn}
               activeOpacity={0.9}
+              disabled={loading}
             >
               <Ionicons name="logo-google" size={20} color={COLORS.surface} />
-              <Text style={styles.googleButtonText}>Continue with Google</Text>
+              <Text style={styles.googleButtonText}>
+                {loading ? "Opening Google..." : "Continue with Google"}
+              </Text>
             </TouchableOpacity>
           </>
         )}

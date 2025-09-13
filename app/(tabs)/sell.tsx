@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, TextInput, StatusBar, Alert, Switch, } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, TextInput, StatusBar, Alert, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { COLORS } from './_layout';
+import { launchCameraAsync, launchImageLibraryAsync, requestCameraPermissionsAsync, requestMediaLibraryPermissionsAsync, MediaTypeOptions } from 'expo-image-picker';
 
 interface ListingData {
     title: string;
@@ -18,37 +19,63 @@ export default function SellScreen() {
         description: '',
         price: '',
         openToOffers: false,
-        photos: []
+        photos: [],
     });
 
-    const [isDraft, setIsDraft] = useState(false);
-
-    const handleInputChange = (field: keyof ListingData, value: string | boolean) => {
-        setListingData(prev => ({
-            ...prev,
-            [field]: value
-        }));
-        setIsDraft(true);
+    const handleGoBack = () => {
+        router.back();
     };
 
-    const handleSaveDraft = () => {
-        // In a real app, you'd save to AsyncStorage
-        setIsDraft(false);
-        Alert.alert('Success', 'Draft saved successfully!');
+    const handleTakePhoto = async () => {
+        const { status } = await requestCameraPermissionsAsync();
+        if (status !== 'granted') {
+            Alert.alert('Permission needed', 'Camera permission is required to take photos');
+            return;
+        }
+
+        const result = await launchCameraAsync({
+            mediaTypes: MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 0.8,
+        });
+
+        if (!result.canceled && result.assets[0]) {
+            setListingData({
+                ...listingData,
+                photos: [...listingData.photos, result.assets[0].uri],
+            });
+        }
     };
 
-    const handleTakePhoto = () => {
-        // Mock photo taking functionality
-        const mockPhoto = `photo_${Date.now()}.jpg`;
-        setListingData(prev => ({
-            ...prev,
-            photos: [...prev.photos, mockPhoto]
-        }));
-        setIsDraft(true);
-        Alert.alert('Success', 'Photo added successfully!');
+    const handlePickImage = async () => {
+        const { status } = await requestMediaLibraryPermissionsAsync();
+        if (status !== 'granted') {
+            Alert.alert('Permission needed', 'Photo library permission is required to select photos');
+            return;
+        }
+
+        const result = await launchImageLibraryAsync({
+            mediaTypes: MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 0.8,
+        });
+
+        if (!result.canceled && result.assets[0]) {
+            setListingData({
+                ...listingData,
+                photos: [...listingData.photos, result.assets[0].uri],
+            });
+        }
     };
 
-    const handlePublishListing = () => {
+    const handleRemovePhoto = (index: number) => {
+        const newPhotos = listingData.photos.filter((_, i) => i !== index);
+        setListingData({ ...listingData, photos: newPhotos });
+    };
+
+    const handlePublish = () => {
         if (!listingData.title || !listingData.description || !listingData.price) {
             Alert.alert('Error', 'Please fill in all required fields');
             return;
@@ -67,207 +94,155 @@ export default function SellScreen() {
                             description: '',
                             price: '',
                             openToOffers: false,
-                            photos: []
+                            photos: [],
                         });
-                        setIsDraft(false);
-                        // Navigate back to home
                         router.back();
-                    }
-                }
+                    },
+                },
             ]
         );
-    };
-
-    const handleGoBack = () => {
-        if (isDraft) {
-            Alert.alert(
-                'Unsaved Changes',
-                'You have unsaved changes. Do you want to save as draft?',
-                [
-                    { text: 'Discard', onPress: () => router.back() },
-                    { text: 'Save Draft', onPress: handleSaveDraft },
-                    { text: 'Cancel', style: 'cancel' }
-                ]
-            );
-        } else {
-            router.back();
-        }
     };
 
     const isFormValid = listingData.title && listingData.description && listingData.price;
 
     return (
-        <SafeAreaView className="flex-1 bg-gray-50">
+        <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
             <StatusBar barStyle="dark-content" backgroundColor="#fafafa" />
 
             {/* Header */}
-            <View className="bg-gray-50 px-5 py-3 shadow-sm border-b border-gray-200">
-                <View className="flex-row justify-between items-center">
+            <View style={{ backgroundColor: COLORS.background, paddingHorizontal: 20, paddingVertical: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2, elevation: 2, borderBottomWidth: 1, borderBottomColor: COLORS.surfaceLight }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                     <TouchableOpacity onPress={handleGoBack}>
-                        <Text className="text-lg font-semibold" style={{ color: COLORS.primary }}>
+                        <Text style={{ fontSize: 18, fontWeight: '600', color: COLORS.primary }}>
                             ← Back
                         </Text>
                     </TouchableOpacity>
-                    <Text className="text-xl font-bold text-black">Create Listing</Text>
-                    {isDraft && (
+                    <Text style={{ fontSize: 20, fontWeight: 'bold', color: COLORS.primary }}>Create Listing</Text>
+                    <View style={{ width: 50 }} />
+                </View>
+            </View>
+
+            <ScrollView style={{ flex: 1, paddingHorizontal: 20, paddingVertical: 16 }}>
+                {/* Photos Section */}
+                <View style={{ backgroundColor: COLORS.surface, borderRadius: 16, padding: 16, marginBottom: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 2, borderWidth: 1, borderColor: COLORS.surfaceLight }}>
+                    <Text style={{ fontSize: 18, fontWeight: 'bold', color: COLORS.primary, marginBottom: 12 }}>Photos</Text>
+                    
+                    {/* Photo Grid */}
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 12 }}>
+                        {listingData.photos.map((photo, index) => (
+                            <View key={index} style={{ position: 'relative', marginRight: 8, marginBottom: 8 }}>
+                                <Image source={{ uri: photo }} style={{ width: 80, height: 80, borderRadius: 8 }} />
+                                <TouchableOpacity
+                                    onPress={() => handleRemovePhoto(index)}
+                                    style={{
+                                        position: 'absolute',
+                                        top: -5,
+                                        right: -5,
+                                        backgroundColor: COLORS.primary,
+                                        borderRadius: 10,
+                                        width: 20,
+                                        height: 20,
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                    }}
+                                >
+                                    <Text style={{ color: COLORS.white, fontSize: 12, fontWeight: 'bold' }}>×</Text>
+                                </TouchableOpacity>
+                            </View>
+                        ))}
+                    </View>
+
+                    {/* Add Photo Buttons */}
+                    <View style={{ flexDirection: 'row', gap: 12 }}>
                         <TouchableOpacity
-                            onPress={handleSaveDraft}
+                            onPress={handleTakePhoto}
                             style={{
-                                backgroundColor: COLORS.surfaceLight,
-                                paddingHorizontal: 12,
-                                paddingVertical: 6,
+                                flex: 1,
+                                backgroundColor: COLORS.primary,
+                                paddingVertical: 12,
                                 borderRadius: 8,
+                                alignItems: 'center',
+                            }}
+                        >
+                            <Text style={{ color: COLORS.white, fontSize: 16, fontWeight: '600' }}>📷 Take Photo</Text>
+                        </TouchableOpacity>
+                        
+                        <TouchableOpacity
+                            onPress={handlePickImage}
+                            style={{
+                                flex: 1,
+                                backgroundColor: COLORS.surfaceLight,
+                                paddingVertical: 12,
+                                borderRadius: 8,
+                                alignItems: 'center',
                                 borderWidth: 1,
                                 borderColor: COLORS.primary,
                             }}
                         >
-                            <Text style={{ color: COLORS.primary, fontSize: 12, fontWeight: '600' }}>
-                                Save Draft
-                            </Text>
+                            <Text style={{ color: COLORS.primary, fontSize: 16, fontWeight: '600' }}>🖼️ Choose Photo</Text>
                         </TouchableOpacity>
-                    )}
-                </View>
-            </View>
-
-            <ScrollView className="flex-1 px-5 py-4">
-                {/* Photos Section hhhh*/}
-                <View className="bg-white rounded-2xl p-4 mb-4 shadow-sm border border-gray-100">
-                    <Text className="text-lg font-bold text-black mb-3">Photos</Text>
-                    <TouchableOpacity
-                        onPress={handleTakePhoto}
-                        className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl p-6 items-center justify-center"
-                        style={{ minHeight: 120 }}
-                    >
-                        <Text className="text-4xl mb-2">📸</Text>
-                        <Text className="text-base font-semibold text-gray-700">
-                            Take Photos ({listingData.photos.length})
-                        </Text>
-                        <Text className="text-sm text-gray-500 mt-1">
-                            Tap to add photos
-                        </Text>
-                    </TouchableOpacity>
-                    {listingData.photos.length > 0 && (
-                        <Text className="text-sm text-gray-600 mt-2">
-                            {listingData.photos.length} photo(s) added
-                        </Text>
-                    )}
+                    </View>
                 </View>
 
-                {/* Listing Details */}
-                <View className="bg-white rounded-2xl p-4 mb-4 shadow-sm border border-gray-100">
-                    <Text className="text-lg font-bold text-black mb-4">Listing Details</Text>
+                {/* Title Section */}
+                <View style={{ backgroundColor: COLORS.surface, borderRadius: 16, padding: 16, marginBottom: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 2, borderWidth: 1, borderColor: COLORS.surfaceLight }}>
+                    <Text style={{ fontSize: 18, fontWeight: 'bold', color: COLORS.primary, marginBottom: 12 }}>Title *</Text>
+                    <TextInput
+                        style={{ borderWidth: 1, borderColor: COLORS.surfaceLight, borderRadius: 8, padding: 12, fontSize: 16, color: COLORS.primary, backgroundColor: COLORS.background }}
+                        placeholder="Enter item title"
+                        placeholderTextColor={COLORS.grey}
+                        value={listingData.title}
+                        onChangeText={(text) => setListingData({ ...listingData, title: text })}
+                    />
+                </View>
 
-                    <View className="mb-4">
-                        <Text className="text-sm font-semibold text-gray-700 mb-2">Title *</Text>
+                {/* Description Section */}
+                <View style={{ backgroundColor: COLORS.surface, borderRadius: 16, padding: 16, marginBottom: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 2, borderWidth: 1, borderColor: COLORS.surfaceLight }}>
+                    <Text style={{ fontSize: 18, fontWeight: 'bold', color: COLORS.primary, marginBottom: 12 }}>Description *</Text>
+                    <TextInput
+                        style={{ borderWidth: 1, borderColor: COLORS.surfaceLight, borderRadius: 8, padding: 12, fontSize: 16, color: COLORS.primary, backgroundColor: COLORS.background, height: 100, textAlignVertical: 'top' }}
+                        placeholder="Describe your item"
+                        placeholderTextColor={COLORS.grey}
+                        multiline
+                        numberOfLines={4}
+                        value={listingData.description}
+                        onChangeText={(text) => setListingData({ ...listingData, description: text })}
+                    />
+                </View>
+
+                {/* Price Section */}
+                <View style={{ backgroundColor: COLORS.surface, borderRadius: 16, padding: 16, marginBottom: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 2, borderWidth: 1, borderColor: COLORS.surfaceLight }}>
+                    <Text style={{ fontSize: 18, fontWeight: 'bold', color: COLORS.primary, marginBottom: 12 }}>Price *</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <Text style={{ fontSize: 18, color: COLORS.primary, marginRight: 8 }}>$</Text>
                         <TextInput
-                            placeholder="What are you selling?"
-                            value={listingData.title}
-                            onChangeText={(value) => handleInputChange('title', value)}
-                            className="bg-gray-50 rounded-xl px-4 py-3 text-base font-medium text-black border border-gray-200"
-                            placeholderTextColor="#999"
-                        />
-                    </View>
-
-                    <View className="mb-4">
-                        <Text className="text-sm font-semibold text-gray-700 mb-2">Description *</Text>
-                        <TextInput
-                            placeholder="Describe your item..."
-                            value={listingData.description}
-                            onChangeText={(value) => handleInputChange('description', value)}
-                            multiline
-                            numberOfLines={4}
-                            textAlignVertical="top"
-                            className="bg-gray-50 rounded-xl px-4 py-3 text-base font-medium text-black border border-gray-200"
-                            placeholderTextColor="#999"
+                            style={{ flex: 1, borderWidth: 1, borderColor: COLORS.surfaceLight, borderRadius: 8, padding: 12, fontSize: 16, color: COLORS.primary, backgroundColor: COLORS.background }}
+                            placeholder="0.00"
+                            placeholderTextColor={COLORS.grey}
+                            keyboardType="numeric"
+                            value={listingData.price}
+                            onChangeText={(text) => setListingData({ ...listingData, price: text })}
                         />
                     </View>
                 </View>
 
-                {/* Pricing */}
-                <View className="bg-white rounded-2xl p-4 mb-4 shadow-sm border border-gray-100">
-                    <Text className="text-lg font-bold text-black mb-4">Pricing</Text>
-
-                    <View className="mb-4">
-                        <Text className="text-sm font-semibold text-gray-700 mb-2">Listing Type</Text>
-                        <View
-                            className="rounded-xl p-3 flex-row items-center"
-                            style={{ backgroundColor: COLORS.surfaceLight }}
-                        >
-                            <View
-                                className="w-2 h-2 rounded-full mr-3"
-                                style={{ backgroundColor: COLORS.primary }}
-                            />
-                            <Text className="text-base font-medium text-black">For Sale</Text>
-                        </View>
-                    </View>
-
-                    <View className="mb-4">
-                        <Text className="text-sm font-semibold text-gray-700 mb-2">Price *</Text>
-                        <View className="relative">
-                            <TextInput
-                                placeholder="0.00"
-                                value={listingData.price}
-                                onChangeText={(value) => handleInputChange('price', value)}
-                                keyboardType="numeric"
-                                className="bg-gray-50 rounded-xl pl-8 pr-4 py-3 text-base font-medium text-black border border-gray-200"
-                                placeholderTextColor="#999"
-                            />
-                            <Text className="absolute left-4 top-3 text-base text-gray-600">$</Text>
-                        </View>
-                    </View>
-
-                    <View className="flex-row items-center justify-between">
-                        <Text className="text-base font-medium text-black">Open to offers</Text>
-                        <Switch
-                            value={listingData.openToOffers}
-                            onValueChange={(value) => handleInputChange('openToOffers', value)}
-                            trackColor={{ false: '#e5e5e5', true: COLORS.primary }}
-                            thumbColor="#ffffff"
-                        />
-                    </View>
-                </View>
-
-                {/* Action Buttons */}
-                <View className="space-y-3 pb-8">
-                    <TouchableOpacity
-                        onPress={handlePublishListing}
-                        disabled={!isFormValid}
-                        style={{
-                            backgroundColor: isFormValid ? COLORS.primary : '#d1d5db',
-                            paddingVertical: 16,
-                            borderRadius: 12,
-                            shadowColor: '#000',
-                            shadowOffset: { width: 0, height: 2 },
-                            shadowOpacity: 0.1,
-                            shadowRadius: 4,
-                            elevation: 3,
-                        }}
-                    >
-                        <Text
-                            style={{
-                                color: isFormValid ? COLORS.white : '#6b7280',
-                                fontSize: 16,
-                                fontWeight: '700',
-                                textAlign: 'center',
-                            }}
-                        >
-                            Publish Listing
-                        </Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                        onPress={() => Alert.alert('Feature Coming Soon', 'Cai nay la cai deo gi vay?')}
-                        className="border-2 rounded-xl py-4"
-                        style={{ borderColor: COLORS.primary }}
-                    >
-                        <View className="flex-row items-center justify-center">
-                            <Text className="text-2xl mr-2">💬</Text>
-                            <Text>
-                              tu tu roi tinh
-                            </Text>
-                        </View>
-                    </TouchableOpacity>
-                </View>
+                {/* Publish Button */}
+                <TouchableOpacity
+                    onPress={handlePublish}
+                    disabled={!isFormValid}
+                    style={{
+                        backgroundColor: isFormValid ? COLORS.primary : COLORS.grey,
+                        paddingVertical: 16,
+                        borderRadius: 12,
+                        alignItems: 'center',
+                        marginTop: 20,
+                        marginBottom: 40,
+                    }}
+                >
+                    <Text style={{ color: COLORS.white, fontSize: 18, fontWeight: 'bold' }}>
+                        Publish Listing
+                    </Text>
+                </TouchableOpacity>
             </ScrollView>
         </SafeAreaView>
     );

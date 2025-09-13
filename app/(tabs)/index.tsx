@@ -6,9 +6,9 @@ import {
   TouchableOpacity,
   Image,
   TextInput,
-  SafeAreaView,
   StatusBar,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { PRODUCTS, CATEGORIES } from '../data';
 import { COLORS } from './_layout';
 
@@ -27,17 +27,17 @@ interface Category {
 }
 
 const ProductCard = ({ product }: { product: Product }) => (
-  <TouchableOpacity className="bg-gray-50 rounded-2xl shadow-lg border border-gray-100 p-4 mb-5 overflow-hidden">
+  <TouchableOpacity style={{ backgroundColor: COLORS.surface, borderRadius: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 4, borderWidth: 1, borderColor: COLORS.surfaceLight, padding: 16, marginBottom: 20, overflow: 'hidden' }}>
     <Image
       source={{ uri: product.image }}
-      className="w-full h-52 rounded-2xl mb-3"
+      style={{ width: '100%', height: 208, borderRadius: 16, marginBottom: 12 }}
       resizeMode="cover"
     />
-    <Text className="text-black font-bold text-base mb-1.5 leading-5" numberOfLines={2}>
+    <Text style={{ color: COLORS.primary, fontWeight: 'bold', fontSize: 16, marginBottom: 6, lineHeight: 20 }} numberOfLines={2}>
       {product.name}
     </Text>
-    <Text className="text-gray-600 text-sm mb-2 font-medium">{product.weight}</Text>
-    <Text className="text-black font-extrabold text-lg">
+    <Text style={{ color: COLORS.grey, fontSize: 14, marginBottom: 8, fontWeight: '500' }}>{product.weight}</Text>
+    <Text style={{ color: COLORS.primary, fontWeight: '800', fontSize: 18 }}>
       ${product.price.toFixed(2)}
     </Text>
   </TouchableOpacity>
@@ -79,11 +79,11 @@ export default function HomeScreen() {
   });
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
       <StatusBar barStyle="dark-content" backgroundColor="#fafafa" />
       
       {/* Header */}
-      <View className="bg-gray-50 px-5 py-3 shadow-sm">
+      <View style={{ backgroundColor: COLORS.background, paddingHorizontal: 20, paddingVertical: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2, elevation: 2 }}>
         <Text 
           style={{
             fontSize: 28,
@@ -100,20 +100,20 @@ export default function HomeScreen() {
         </Text>
         
         {/* Search Bar */}
-        <View className="flex-row items-center bg-gray-100 rounded-xl px-3.5 py-2.5 border border-gray-200">
-          <Text className="text-gray-600 mr-2.5 text-sm">🔍</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.surfaceLight, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10, borderWidth: 1, borderColor: COLORS.surfaceLight, marginTop: 10 }}>
+          <Text style={{ color: COLORS.grey, marginRight: 10, fontSize: 14 }}>🔍</Text>
           <TextInput
             placeholder="Search products..."
             value={searchQuery}
             onChangeText={setSearchQuery}
-            className="flex-1 text-black text-base font-medium"
+            style={{ flex: 1, color: COLORS.primary, fontSize: 16, fontWeight: '500' }}
             placeholderTextColor="#999"
           />
         </View>
       </View>
 
       {/* Categories */}
-      <View className="bg-gray-50 py-2.5 px-5">
+      <View style={{ backgroundColor: COLORS.background, paddingVertical: 10, paddingHorizontal: 20 }}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingRight: 20 }}>
           <CategoryButton
             category={{ id: 0, name: 'All' }}
@@ -132,17 +132,17 @@ export default function HomeScreen() {
       </View>
 
       {/* Products Grid */}
-      <ScrollView className="flex-1 px-1 pt-4 pb-5">
-        <View className="flex-row justify-between items-center mb-4">
-          <Text className="text-xl font-bold text-black tracking-tight">
+      <ScrollView style={{ flex: 1, paddingHorizontal: 4, paddingTop: 16, paddingBottom: 20 }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <Text style={{ fontSize: 20, fontWeight: 'bold', color: COLORS.primary, letterSpacing: -0.5 }}>
             {selectedCategory === 0 ? 'All Products' : CATEGORIES.find(cat => cat.id === selectedCategory)?.name}
           </Text>
-          <Text className="text-sm text-gray-600 font-semibold bg-gray-100 px-2.5 py-1 rounded-lg">
+          <Text style={{ fontSize: 14, color: COLORS.grey, fontWeight: '600', backgroundColor: COLORS.surfaceLight, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 }}>
             {filteredProducts.length} items
           </Text>
         </View>
 
-        <View className="flex-row flex-wrap justify-between">
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
           {filteredProducts.map((product) => (
             <View key={product.id} style={{ width: '49%' }}>
               <ProductCard product={product} />
@@ -151,11 +151,11 @@ export default function HomeScreen() {
         </View>
 
         {filteredProducts.length === 0 && (
-          <View className="flex-1 justify-center items-center py-25">
-            <Text className="text-gray-600 text-xl font-semibold mb-2">
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingVertical: 100 }}>
+            <Text style={{ color: COLORS.grey, fontSize: 20, fontWeight: '600', marginBottom: 8 }}>
               No products found
             </Text>
-            <Text className="text-gray-500 text-base text-center">
+            <Text style={{ color: '#999', fontSize: 16, textAlign: 'center' }}>
               Try adjusting your search or category
             </Text>
           </View>
