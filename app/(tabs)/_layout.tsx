@@ -92,7 +92,6 @@ export default function TabLayout() {
                 alignItems: "center",
                 justifyContent: "center",
                 backgroundColor: COLORS.primary, // navy
-                marginTop: -25, // lift the middle button a bit
               }}
             >
               <Text style={{ color: COLORS.secondary, fontSize: 20, fontWeight: "800" }}>
