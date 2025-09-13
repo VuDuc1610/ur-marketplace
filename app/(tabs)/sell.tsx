@@ -130,7 +130,7 @@ export default function SellScreen() {
             </View>
 
             <ScrollView className="flex-1 px-5 py-4">
-                {/* Photos Section */}
+                {/* Photos Section hhhh*/}
                 <View className="bg-white rounded-2xl p-4 mb-4 shadow-sm border border-gray-100">
                     <Text className="text-lg font-bold text-black mb-3">Photos</Text>
                     <TouchableOpacity
