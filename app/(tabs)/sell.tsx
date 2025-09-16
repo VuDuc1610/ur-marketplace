@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   View,
   Text,
@@ -13,23 +14,81 @@ import { router } from 'expo-router';
 import { COLORS } from './_layout';
 
 interface ListingData {
+  id: string;
   title: string;
   description: string;
   price: string;
   openToOffer: boolean;
   photos: string[];
+  createdAt: string;
+  status: 'draft' | 'published';
+
 }
 
 export default function SellScreen() {
   const [listingData, setListingData] = useState<ListingData>({
+    id: '',
     title: '',
     description: '',
     price: '',
     openToOffer: false,
     photos: [],
+    createdAt: '',
+    status: 'draft',
   });
-  const handleInputChange = (field, value) => {
+  const handleInputChange = <K extends keyof ListingData>(field: K, value: ListingData[K]) => {
     setListingData({...listingData, [field]: value});
+  };
+
+
+  const validateListing = () => {
+    if (!listingData.title.trim()) {
+      Alert.alert('Error', 'Missing title');
+      return false;
+    }
+    if (!listingData.description.trim()) {
+      Alert.alert('Error', 'Missing description');
+      return false;
+    }
+    if (!listingData.price.trim()) {
+      Alert.alert('Error', 'Missing Price??');
+      return false;
+    }
+    return true;
+  };
+
+  const saveListing = async (listingStatus) => {
+    if (!validateListing()) {
+      return;
+    }
+
+    try {
+      const newListingData = {
+        ...listingData,
+        id: Date.now().toString(),
+        createdAt: new Date().toISOString(),
+        status: listingStatus,
+        photos: ['https://as2.ftcdn.net/v2/jpg/03/03/62/45/1000_F_303624505_u0bFT1Rnoj8CMUSs8wMCwoKlnWlh5Jiq.jpg']
+      };
+
+      console.log('newListingData', newListingData); //debug log
+
+      const existingData = await AsyncStorage.getItem('listings');
+      const existingListings = existingData ? JSON.parse(existingData) : [];
+
+      existingListings.push(newListingData);
+
+      await AsyncStorage.setItem('listings', JSON.stringify(existingListings));
+
+      console.log('Saved to AsyncStorage!'); // Debug log
+
+      const message =  listingStatus === 'published' ? 'Published!' : 'Draft saved!';  // Updated here too
+      Alert.alert('Success', message);
+
+    } catch (error) {
+      console.error(error);
+      Alert.alert('dit me loi roi', String(error));
+    }
   };
 
   return (
@@ -172,50 +231,20 @@ export default function SellScreen() {
           paddingBottom: 20
         }}>
           <TouchableOpacity
-            onPress={() => {
-              if (!listingData.title || !listingData.description || !listingData.price) {
-                Alert.alert('Error', 'Please fill in all fields');
-                return;
-              }
-              Alert.alert('Success', 'Listing published!', [
-                {
-                  text: 'OK',
-                  onPress: () => {
-                    // Clear the form
-                    setListingData({
-                      title: '',
-                      description: '',
-                      price: '',
-                      openToOffer: false,
-                      photos: []
-                    });
-                  }
-                }
-              ]);
-            }}
+            onPress={() => saveListing('published')}
             style={{
-              backgroundColor: (!listingData.title || !listingData.description || !listingData.price)
-                ? COLORS.surfaceLight
-                : COLORS.primary,
+              backgroundColor: COLORS.primary,
               padding: 16,
               borderRadius: 12,
               alignItems: 'center',
               marginBottom: 12
             }}
           >
-            <Text style={{
-              color: (!listingData.title || !listingData.description || !listingData.price)
-                ? COLORS.grey
-                : COLORS.white,
-              fontSize: 16,
-              fontWeight: 'bold'
-            }}>
-              Publish Listing
-            </Text>
+            <Text style={{color: COLORS.white, fontSize: 16, fontWeight: 'bold'}}>Publish Listing</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => Alert.alert('Coming soon')}
+            onPress={() => saveListing('draft')}
             style={{
               backgroundColor: 'transparent',
               padding: 16,

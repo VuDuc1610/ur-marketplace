@@ -12,6 +12,7 @@ import {
 import { router } from 'expo-router';
 import { PRODUCTS, CATEGORIES } from '../data';
 import { COLORS } from './_layout';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface Product {
   id: number;
