@@ -115,8 +115,8 @@ export const PRODUCTS = [
 ];
 
 export const CATEGORIES = [
-  { id: 1, name: 'Fruits' },
-  { id: 2, name: 'Drinks' },
-  { id: 3, name: 'Eggs & Dairy' },
-  { id: 4, name: 'Meat' },
-];
+  { id: 1, name: 'Appliances' },
+  { id: 2, name: 'Furniture' },
+  { id: 3, name: 'Transportation' },
+  { id: 4, name: 'Technology' },
+]; //fixed to test category import

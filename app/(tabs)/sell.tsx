@@ -12,11 +12,57 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { COLORS } from './_layout';
-import { CATEGORIES } from '../data'; // Corrected import to match HomeScreen
-import { Picker } from '@react-native-picker/picker'; // Ensure this package is installed
+import { CATEGORIES } from '../data';
+// import { Picker } from '@react-native-picker/picker';
 
-// Note: Ensure you have installed @react-native-picker/picker
-// Run: expo install @react-native-picker/picker (for Expo) or npm install @react-native-picker/picker
+const CategoryGrid = ({ selectedCategory, onCategorySelect }) => {
+  return (
+    <View>
+      <Text style={{ fontSize: 14, fontWeight: '600', color: COLORS.grey, marginBottom: 12 }}>
+        Category
+      </Text>
+      <View style={{
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 8,
+        marginBottom: 16,
+      }}>
+        {CATEGORIES.map((category) => {
+          const isSelected = selectedCategory === category.id;
+          return (
+            <TouchableOpacity
+              key={category.id}
+              onPress={() => onCategorySelect(category.id)}
+              style={{
+                paddingHorizontal: 16,
+                paddingVertical: 10,
+                borderRadius: 20,
+                borderWidth: 2,
+                borderColor: isSelected ? COLORS.primary : COLORS.surfaceLight,
+                backgroundColor: isSelected ? COLORS.primary : COLORS.surface,
+                minWidth: 80,
+                alignItems: 'center',
+              }}
+            >
+              <Text style={{
+                fontSize: 14,
+                fontWeight: isSelected ? 'bold' : '600',
+                color: isSelected ? COLORS.white : COLORS.grey,
+              }}>
+                {category.name}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+      {selectedCategory === 0 && (
+        <Text style={{ color: 'red', fontSize: 12, marginTop: -8, marginBottom: 8 }}>
+          Please select a category
+        </Text>
+      )}
+    </View>
+  );
+};
 
 interface ListingData {
   id: string;
@@ -197,24 +243,10 @@ export default function SellScreen() {
             }}
           />
 
-          <Text style={{ fontSize: 14, fontWeight: '600', color: COLORS.grey, marginBottom: 8 }}>Category</Text>
-          <Picker
-            selectedValue={listingData.categoryId}
-            onValueChange={(value) => handleInputChange('categoryId', value)}
-            style={{
-              backgroundColor: COLORS.surfaceLight,
-              borderRadius: 8,
-              fontSize: 16,
-              marginBottom: 16,
-              borderWidth: 1,
-              borderColor: COLORS.surfaceLight,
-            }}
-          >
-            <Picker.Item label="Select a category" value={0} />
-            {CATEGORIES && CATEGORIES.map((category) => (
-              <Picker.Item key={category.id} label={category.name} value={category.id} />
-            ))}
-          </Picker>
+          <CategoryGrid
+            selectedCategory={listingData.categoryId}
+            onCategorySelect={(categoryId) => handleInputChange('categoryId', categoryId)}
+          />
         </View>
 
         {/* Pricing Section */}
