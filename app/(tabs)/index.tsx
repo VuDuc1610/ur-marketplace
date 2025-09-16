@@ -1,18 +1,22 @@
-import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  Image,
-  TextInput,
-  SafeAreaView,
-  StatusBar,
-} from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Image, ScrollView, StatusBar, Text, TextInput, TouchableOpacity, View, } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { PRODUCTS, CATEGORIES } from '../data';
+import { CATEGORIES } from '../data'; //Bo PRODUCTS
 import { COLORS } from './_layout';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
+interface ListingData {
+  id: string;
+  title: string;
+  description: string;
+  price: string;
+  openToOffer: boolean;
+  photos: string[];
+  createdAt: string;
+  status: 'draft' | 'published';
+}
 
 interface Product {
   id: number;
@@ -28,22 +32,15 @@ interface Category {
   name: string;
 }
 
-const ProductCard = ({ product }: { product: Product }) => (
+const ProductCard = ({ product }: { product: ListingData }) => (
   <TouchableOpacity className="bg-gray-50 rounded-2xl shadow-lg border border-gray-100 p-4 mb-5 overflow-hidden">
-    <Image
-      source={{ uri: product.image }}
-      className="w-full h-52 rounded-2xl mb-3"
-      resizeMode="cover"
-    />
-    <Text className="text-black font-bold text-base mb-1.5 leading-5" numberOfLines={2}>
-      {product.name}
-    </Text>
-    <Text className="text-gray-600 text-sm mb-2 font-medium">{product.weight}</Text>
-    <Text className="text-black font-extrabold text-lg">
-      ${product.price.toFixed(2)}
-    </Text>
+    <Image source={{ uri: product.photos[0] }}
+     style={{ width: '100%', height: 150, borderRadius: 12, marginBottom: 8 }}
+     resizeMode="cover"/>
+    <Text>{product.title}</Text>
+    <Text>${product.price}</Text>
   </TouchableOpacity>
-);
+); //Product --> listingData
 
 const CategoryButton = ({ category, isSelected, onPress }: { category: Category; isSelected: boolean; onPress: () => void }) => (
   <TouchableOpacity
@@ -70,19 +67,36 @@ const CategoryButton = ({ category, isSelected, onPress }: { category: Category;
   </TouchableOpacity>
 );
 
+
 export default function HomeScreen() {
   const [selectedCategory, setSelectedCategory] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
+  const [listings, setListings] = useState<ListingData[]>([]);
 
-  const filteredProducts = PRODUCTS.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === 0 || product.categoryId === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+
+  const filteredProducts = listings.filter(listing => {
+    const matchesSearch = listing.title
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+    const matchesCategory = selectedCategory === 0 || listing.categoryId === selectedCategory;
+    return matchesSearch && matchesCategory && listing.status === 'published'; // Only show published listings
+  }); //update product --> listings
 
   const handleSellPress = () => {
     router.push('/sell');
   };
+  useEffect(() => {
+    const fetchListings = async () => {
+      const stored = await AsyncStorage.getItem('listings');
+      if (stored) {
+        setListings(JSON.parse(stored));
+      }
+    };
+
+    fetchListings();
+  }, []);
+
+
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
