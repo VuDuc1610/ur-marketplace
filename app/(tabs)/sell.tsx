@@ -13,6 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { COLORS } from './_layout';
 import { CATEGORIES } from '../data';
+import { Header } from './(sell)/header';
 // import { Picker } from '@react-native-picker/picker';
 
 const CategoryGrid = ({ selectedCategory, onCategorySelect }) => {
@@ -146,25 +147,13 @@ export default function SellScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
-      {/* Header */}
-      <View style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: COLORS.surface,
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        borderBottomWidth: 1,
-        borderBottomColor: COLORS.surfaceLight,
-      }}>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={{ position: 'absolute', left: 16 }}
-        >
-          <Text style={{ color: COLORS.primary, fontSize: 16, fontWeight: '600' }}>← Back</Text>
-        </TouchableOpacity>
-        <Text style={{ color: COLORS.grey, fontSize: 18, fontWeight: 'bold' }}>Create Listing</Text>
-      </View>
+
+
+      <Header title="Create Listing" />
+
+
+
+
 
       {/* Main Content */}
       <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
