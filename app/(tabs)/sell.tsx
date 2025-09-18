@@ -14,6 +14,7 @@ import { router } from 'expo-router';
 import { COLORS } from './_layout';
 import { CATEGORIES } from '../data';
 import { Header } from './(sell)/header';
+import { PhotoUploader } from './(sell)/photo-uploader';
 // import { Picker } from '@react-native-picker/picker';
 
 const CategoryGrid = ({ selectedCategory, onCategorySelect }) => {
@@ -157,34 +158,8 @@ export default function SellScreen() {
 
       {/* Main Content */}
       <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
-        {/* Photos Section */}
-        <View style={{
-          backgroundColor: COLORS.surface,
-          margin: 16,
-          padding: 16,
-          borderRadius: 12,
-          borderWidth: 1,
-          borderColor: COLORS.surfaceLight,
-        }}>
-          <Text style={{ fontSize: 16, fontWeight: 'bold', color: COLORS.grey, marginBottom: 12 }}>Photos</Text>
-          <TouchableOpacity
-            onPress={() => Alert.alert('Info', 'Photo upload feature coming soon')}
-            style={{
-              backgroundColor: COLORS.surfaceLight,
-              padding: 20,
-              borderRadius: 8,
-              alignItems: 'center',
-              borderWidth: 2,
-              borderColor: COLORS.surfaceLight,
-              borderStyle: 'dashed',
-            }}
-          >
-            <Text style={{ fontSize: 24, marginBottom: 8 }}>+</Text>
-            <Text style={{ fontSize: 16, fontWeight: '600', color: COLORS.grey }}>
-              Add Photos ({listingData.photos.length})
-            </Text>
-          </TouchableOpacity>
-        </View>
+        
+        <PhotoUploader photos={listingData.photos} onAddPhoto={() => Alert.alert('Info', 'Photo upload feature coming soon')} />
 
         {/* Listing Details Section */}
         <View style={{
