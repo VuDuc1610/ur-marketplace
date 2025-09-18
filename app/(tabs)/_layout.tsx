@@ -1,5 +1,7 @@
 import { Tabs } from 'expo-router';
 import { Image, View, Text } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 
 export const COLORS = {
   primary: "#00205B",     // Rochester Navy
@@ -14,6 +16,8 @@ export const COLORS = {
 
 export default function TabLayout() {
   return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.surface }}>
+
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: COLORS.primary,
@@ -149,5 +153,6 @@ export default function TabLayout() {
         }}
       />
     </Tabs>
+    </SafeAreaView>
   );
 }

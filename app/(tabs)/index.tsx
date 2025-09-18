@@ -202,7 +202,7 @@ export default function HomeScreen() {
     };
 
     return (
-        <SafeAreaView className="flex-1 bg-gray-50">
+        <View>
             <StatusBar barStyle="dark-content" backgroundColor="#fafafa" />
 
             {/* Header */}
@@ -348,6 +348,6 @@ export default function HomeScreen() {
                     </View>
                 )}
             </ScrollView>
-        </SafeAreaView>
+        </View>
     );
 }
