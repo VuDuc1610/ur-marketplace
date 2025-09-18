@@ -18,7 +18,7 @@ import { PhotoUploader } from './(sell)/photo-uploader';
 import { ListingDetails } from './(sell)/listing-data';
 import { PricingSection } from './(sell)/pricing-section';
 // import { Picker } from '@react-native-picker/picker';
-
+import { ActionButtons } from './(sell)/action-buttons';
 
 export interface ListingData {
   id: string;
@@ -106,9 +106,6 @@ export default function SellScreen() {
 
       <Header title="Create Listing" />
 
-
-
-      {/* Main Content */}
       <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
         
         <PhotoUploader photos={listingData.photos} onAddPhoto={() => Alert.alert('Info', 'Photo upload feature coming soon')} />
@@ -116,37 +113,9 @@ export default function SellScreen() {
         <ListingDetails listingData={listingData} handleInputChange={handleInputChange}/>
 
         <PricingSection listingData={listingData} handleInputChange={handleInputChange} />
+        
+        <ActionButtons onPublish={() => saveListing('published')} onSaveDraft={() => saveListing('draft')} />
 
-
-        {/* Action Buttons */}
-        <View style={{ margin: 16 }}>
-          <TouchableOpacity
-            onPress={() => saveListing('published')}
-            style={{
-              backgroundColor: COLORS.primary,
-              padding: 16,
-              borderRadius: 12,
-              alignItems: 'center',
-              marginBottom: 12,
-            }}
-          >
-            <Text style={{ color: COLORS.white, fontSize: 16, fontWeight: 'bold' }}>Publish Listing</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => saveListing('draft')}
-            style={{
-              backgroundColor: 'transparent',
-              padding: 16,
-              borderRadius: 12,
-              alignItems: 'center',
-              borderWidth: 2,
-              borderColor: COLORS.primary,
-            }}
-          >
-            <Text style={{ color: COLORS.primary, fontSize: 16, fontWeight: '600' }}>Save Draft</Text>
-          </TouchableOpacity>
-        </View>
       </ScrollView>
     </SafeAreaView>
   );
