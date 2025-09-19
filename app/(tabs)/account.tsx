@@ -11,10 +11,9 @@ export default function AccountScreen() {
   ];
 
   return (
-    <View className="flex-1 bg-gray-100 pb-5">
-      <Header title="My Account" />
-
-      <ScrollView contentContainerStyle={{ paddingHorizontal: 4, paddingBottom: 10 }}>
+    <View className="flex-1 bg-background">
+      <Header title="My Account"/>
+      <ScrollView className='p-4 pb-10 '>
         <UserProfile />
       </ScrollView>
     </View>
