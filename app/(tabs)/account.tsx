@@ -1,15 +1,22 @@
-import React from 'react';
-import { View, Text, StatusBar } from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import { View, ScrollView } from 'react-native';
+import { Header } from './(sell)/header';
+import { UserProfile } from 'components/UserProfile';
 
 export default function AccountScreen() {
+
+  const buyingSellingItems = [
+    { icon: "file-text", title: "Listings" },
+    { icon: "shopping-bag", title: "Purchases" },
+    { icon: "heart", title: "Favorites" },
+  ];
+
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
-      <StatusBar barStyle="dark-content" backgroundColor="#fafafa" />
-      <View className="flex-1 justify-center items-center">
-        <Text className="text-2xl font-bold text-black mb-2">My Account</Text>
-        <Text className="text-base text-gray-600 text-center">Account settings coming soon</Text>
-      </View>
-    </SafeAreaView>
+    <View className="flex-1 bg-gray-100 pb-5">
+      <Header title="My Account" />
+
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 4, paddingBottom: 10 }}>
+        <UserProfile />
+      </ScrollView>
+    </View>
   );
 }
