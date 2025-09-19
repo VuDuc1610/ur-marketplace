@@ -27,11 +27,19 @@ export default function TabLayout() {
             paddingBottom: 5,
             paddingTop: 5,
             height: 70,
+            shadowColor: 'transparent',
+            shadowOpacity: 0,
+            shadowOffset: { width: 0, height: 0 },
+            shadowRadius: 0,    
+            elevation: 0,  
+
           },
+
           tabBarLabelStyle: {
             fontSize: 12,
             fontWeight: '600',
           },
+
           headerShown: false,
         }}
       >
@@ -40,12 +48,12 @@ export default function TabLayout() {
           options={{
             title: 'Home',
             tabBarIcon: ({ color, focused }) => (
-                <Feather
-                  name="home"
-                  size={24}
-                  color={color}
-                  style={{ opacity: focused ? 1 : 0.7 }}
-                />
+              <Feather
+                name="home"
+                size={24}
+                color={color}
+                style={{ opacity: focused ? 1 : 0.7 }}
+              />
             ),
           }}
         />
@@ -54,12 +62,12 @@ export default function TabLayout() {
           options={{
             title: 'Search',
             tabBarIcon: ({ color, focused }) => (
-                <Feather
-                  name="search"
-                  size={24}
-                  color={color}
-                  style={{ opacity: focused ? 1 : 0.7 }}
-                />
+              <Feather
+                name="search"
+                size={24}
+                color={color}
+                style={{ opacity: focused ? 1 : 0.7 }}
+              />
             ),
           }}
         />
@@ -91,12 +99,12 @@ export default function TabLayout() {
           options={{
             title: 'Chats',
             tabBarIcon: ({ color, focused }) => (
-                <Feather
-                  name="message-circle"
-                  size={24}
-                  color={color}
-                  style={{ opacity: focused ? 1 : 0.7 }}
-                />
+              <Feather
+                name="message-circle"
+                size={24}
+                color={color}
+                style={{ opacity: focused ? 1 : 0.7 }}
+              />
             ),
           }}
         />
@@ -105,12 +113,12 @@ export default function TabLayout() {
           options={{
             title: 'Account',
             tabBarIcon: ({ color, focused }) => (
-                <Feather
-                  name="user"
-                  size={24}
-                  color={color}
-                  style={{ opacity: focused ? 1 : 0.7 }}
-                />
+              <Feather
+                name="user"
+                size={24}
+                color={color}
+                style={{ opacity: focused ? 1 : 0.7 }}
+              />
             ),
           }}
         />
